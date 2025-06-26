@@ -1,4 +1,5 @@
 import scrapy
+from ebook_scraper.items import EbookItem
 
 class EbookSpider(scrapy.Spider):
     name = "ebook"
@@ -8,7 +9,11 @@ class EbookSpider(scrapy.Spider):
         ebooks = response.css("article")
 
         for ebook in ebooks:
-            title = ebook.css("h3 a::text").get()
-            price = ebook.css("p.price_color::text").get()
+            ebook_item = EbookItem()
 
-            print(title, price)
+            ebook_item['title'] = ebook.css("h3 a::text").get() or ebook.css('h3 a').attrib['title']
+            ebook_item['price'] = ebook.css("p.price_color::text").get()
+            price_with_xpath = ebook.xpath("//p[@class = 'price_color']").get()
+
+            # print(title, price)
+            yield ebook_item
